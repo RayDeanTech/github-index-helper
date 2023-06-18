@@ -21,7 +21,6 @@ namespace github_index_helper
             {
                 
                 string subFolderName = Path.GetFileName(subFolder);
-                Console.WriteLine($"Line 25, subFolderName:  {subFolderName}");
 
                 if (Array.IndexOf(foldersToSkip, subFolderName) >= 0)
                 {
@@ -36,8 +35,6 @@ namespace github_index_helper
                     if (File.Exists(readmePath))
                     {
 
-                        // subFolderName = Path.GetFileName(subFolder);
-                        Console.WriteLine($"Line 41, subFolderName:  {subFolderName}");
                         string content = File.ReadAllText(readmePath);
                         string[] dataArray = ExtractContent(readmePath, content, subFolderName, rootFolderName);
                         string row = GetRowFullInfo(dataArray);
@@ -47,7 +44,6 @@ namespace github_index_helper
                 }
                 else
                 {
-                    Console.WriteLine($"Line 51, subFolderName:  {subFolderName}");
                     rootFolderName = Path.GetFileName(rootFolder);
                     string row = GetRowBasicInfo(subFolderName, rootFolderName);
                     rows.Add(row);
@@ -86,24 +82,14 @@ namespace github_index_helper
             string subFolderName = dataArray[2];
             string rootFolderName = dataArray[3];
 
-            // subFolderName = Uri.EscapeDataString(subFolderName);
-            // rootFolderName = Uri.EscapeDataString(rootFolderName);
+            string row = $" {provider} | {link} | [{subFolderName}]({Uri.EscapeDataString(subFolderName)}/) | https://demos.raydean.tech/{Uri.EscapeDataString(rootFolderName)}/{Uri.EscapeDataString(subFolderName)} |";
 
-            string row = $" {provider} | {link} | [{subFolderName}/]({subFolderName}/) | https://demos.raydean.tech/{rootFolderName}/{subFolderName} |";
-            // return $" {provider} | {link} | [{subFolderName}/]({subFolderName}/) | https://demos.raydean.tech/{rootFolderName}/{subFolderName} |";
-            
-            Console.WriteLine(row);
-            
             return row;
         }
 
         static string GetRowBasicInfo(string subFolderName, string rootFolderName)
         {
-
             string row = $"[{subFolderName}]({Uri.EscapeDataString(subFolderName)}/) | https://demos.raydean.tech/{Uri.EscapeDataString(rootFolderName)}/{Uri.EscapeDataString(subFolderName)} |";
-            Console.WriteLine(row);
-
-            // return $"[{subFolderName}/]({subFolderName}/) | https://demos.raydean.tech/{rootFolderName}/{subFolderName} |";
             return row;
         }
 
@@ -135,6 +121,8 @@ namespace github_index_helper
             // Convert the StringBuilder to a string
             string strBuilderContent = contentBuilder.ToString();
 
+            Console.WriteLine("=== Content intended for insertion ===");
+            Console.WriteLine(strBuilderContent);
 
 
             string marker = "# Index";
