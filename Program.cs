@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace github_index_helper
 {
@@ -9,88 +8,55 @@ namespace github_index_helper
         static void Main()
         {
 
-            string outputFile = "C:/Users/Ray/Documents/GitHub/webdev-tutorials/README.md";
-            string rootFolder = "C:/Users/Ray/Documents/GitHub/webdev-tutorials";
-            string headerRow = "# Index" + "\n" + "| Provider | Course Link | GitHub Code | Live Demo |\n" + "| --- | --- | --- | --- |" + "\n";
-            File.WriteAllText(outputFile, headerRow);
-            string rootFolderName = Path.GetFileName(rootFolder);
-            string[] subFolders = Directory.GetDirectories(rootFolder);
+            // Get the current directory
+            string currentDirectory = Directory.GetCurrentDirectory();
 
+            string folderPath = string.Empty;
 
-            foreach (string subFolder in subFolders)
+            while (string.IsNullOrEmpty(folderPath))
             {
-                string readmePath = Path.Combine(subFolder, "README.md");
+                // Prompt for Folder path
+                Console.WriteLine($"Please provide a Folder path [{currentDirectory}]:");
+                string folderPathInput = Console.ReadLine();
 
-                if (File.Exists(readmePath))
+                // Use default directory if no Folder path is provided
+                folderPath = string.IsNullOrWhiteSpace(folderPathInput) ? currentDirectory : folderPathInput.Trim();
+
+                if (!Directory.Exists(folderPath))
                 {
-
-                    string subFolderName = Path.GetFileName(subFolder);
-                    string content = File.ReadAllText(readmePath);
-
-                    string[] dataArray = ExtractContent(readmePath, content, subFolderName, rootFolderName);
-
-                    string row = GetRow(dataArray);
-
-                    File.AppendAllText(outputFile, $"{row}\n");
-
-
+                    Console.WriteLine("Error: Invalid Folder path");
+                    folderPath = string.Empty;
                 }
-
-
             }
 
+            bool scanSubfolders = false;
 
-
-
-
-        }
-
-
-        static string[] ExtractContent(string readmeFilePath, string fileContents, string subFolderName, string rootFolderName)
-        {
-
-            string regexPattern = @"# Provider([\s\S]*?)# Description([\s\S]*?)# Link([\s\S]*)";
-            Match match = Regex.Match(fileContents, regexPattern, RegexOptions.IgnoreCase);
-
-            if (match.Success)
+            while (true)
             {
-                Group providerGroup = match.Groups[1];
-                // Group descriptionGroup = match.Groups[2];
-                Group linkGroup = match.Groups[3];
+                // Prompt for scanning subfolders
+                Console.WriteLine("Would you like me to scan subfolders for README.md files? Y/[N]:");
+                string scanSubfoldersInput = Console.ReadLine().ToUpper();
 
-                string provider = providerGroup.Value.Trim();
-                // string description = descriptionGroup.Value.Trim();
-                string link = linkGroup.Value.Trim();
-
-                string[] dataArray = new string[] { provider, link, subFolderName, rootFolderName };
-
-                return dataArray;
-
-
+                if (scanSubfoldersInput == "Y")
+                {
+                    scanSubfolders = true;
+                    break; // Exit the loop if "Y" is selected
+                }
+                else if (scanSubfoldersInput == "N" || string.IsNullOrEmpty(scanSubfoldersInput))
+                {
+                    break; // Exit the loop if "N" or empty input is selected
+                }
+                else
+                {
+                    Console.WriteLine("Error: Invalid Input.");
+                }
             }
 
-            return new string[0];
+            // Console.WriteLine("Folder path: " + folderPath);
+            // Console.WriteLine("Scan subfolders: " + scanSubfolders);
 
-
-        }
-
-
-        static string GetRow(string[] dataArray)
-        {
-
-            string provider = dataArray[0];
-            string link = dataArray[1];
-            string subFolderName = dataArray[2];
-            string rootFolderName = dataArray[3];
-
-            return $" {provider} | {link} | [{subFolderName}/]({subFolderName}/) | https://demos.raydean.tech/{rootFolderName}/{subFolderName} |";
+            Crawler.LoopThroughFolders(folderPath, scanSubfolders);
 
         }
-
     }
 }
-
-
-
-
-
